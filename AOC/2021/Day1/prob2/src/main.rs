@@ -29,13 +29,17 @@ fn get_int_lines(filename: &str) -> Vec<i32> {
     let contents = fs::read_to_string(filename.to_string())
         .expect("Woops");
     // filter to remove empty lines (notr perfect)
-    contents.split("\n").filter(|&elem| (elem != "" && elem != "\n")).map(|s| s.parse::<i32>().unwrap()).collect()
+    contents.split("\n").filter(|&elem| !is_empty_or_newline(elem)).map(|s| s.trim_end().parse::<i32>().unwrap()).collect()
 
     //OR 
 
     //let lines: Vec<String> = contents.split("\n").map(|s| s.to_string()).collect();
     // + filter
     //lines
+}
+
+fn is_empty_or_newline(elem: &str) -> bool {
+    (elem == "" || elem == "\n" || elem == "\r\n" || elem.as_bytes() == &[13] || elem.to_string().is_empty())
 }
 
 fn get_depth_increases(depths: Vec<i32>) -> i32{
