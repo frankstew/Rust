@@ -1,0 +1,8 @@
+/rustlings/*
+/Book/*
+/HelloWorld/*
+*/debug/
+*/target/
+**/*.rs.bk
+*/*.pdb
+*/Cargo.lock
