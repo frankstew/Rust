@@ -6,3 +6,6 @@
 **/*.rs.bk
 */*.pdb
 */Cargo.lock
+./rustlings/*
+rustlings/
+
