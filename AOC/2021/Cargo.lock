@@ -3,7 +3,28 @@
 version = 3
 
 [[package]]
-name = "prob1"
+name = "d2p1"
+version = "0.1.0"
+dependencies = [
+ "shared",
+]
+
+[[package]]
+name = "d2p2"
+version = "0.1.0"
+dependencies = [
+ "shared",
+]
+
+[[package]]
+name = "d3p1"
+version = "0.1.0"
+dependencies = [
+ "shared",
+]
+
+[[package]]
+name = "d3p2"
 version = "0.1.0"
 dependencies = [
  "shared",

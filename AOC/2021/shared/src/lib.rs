@@ -1,4 +1,5 @@
 use std::fs;
+use std::string::ToString;
 
 pub fn print_stuff() {
     println!("Stuff");
@@ -29,6 +30,20 @@ pub fn is_empty_or_newline(elem: &str) -> bool {
 
 pub fn print_type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())
+}
+
+
+
+pub fn print_vec<T: ToString>(v: &Vec<T>) {
+    let mut vec_str = String::from("[");
+    for i in v.iter() {
+        let mut append_str = i.to_string();
+        append_str.push_str(", ");
+        vec_str.push_str(&append_str);
+    }
+    vec_str = vec_str[0..vec_str.len() - 2].to_string();
+    vec_str.push_str("]");
+    println!("{}", vec_str);
 }
 
 
