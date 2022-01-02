@@ -8,5 +8,7 @@ members = [
 "Day2/d2p1",
 "Day2/d2p2",
 "Day3/d3p1",
-"Day3/d3p2"
+"Day3/d3p2",
+"Day4/d4p1",
+"Day4/d4p2"
 ]
