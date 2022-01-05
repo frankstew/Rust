@@ -51,6 +51,12 @@ struct Line {
     end: Point
 }
 
+impl Line {
+    fn calc_slope(&self) -> i32 {
+        (self.end.y - self.start.y) / (self.end.x - self.start.x)
+    }
+}
+
 //return Vec<Line> or something? [Line1, Line2, ...]
 fn parse_vert_and_horiz_lines(filename: &str) -> Vec<Line> {
     let file_lines = shared::get_lines(filename);
@@ -77,6 +83,32 @@ fn parse_vert_and_horiz_lines(filename: &str) -> Vec<Line> {
         if is_horiz_or_vert(&line) {
             line_vec.push(line);
         }
+    }
+    line_vec
+}
+
+fn parse_all_lines(filename: &str) -> Vec<Line> {
+    let file_lines = shared::get_lines(filename);
+    let mut line_vec: Vec<Line> = Vec::new();
+    for file_line in file_lines.iter() {
+        let str_points: Vec<&str> = file_line.split("->").map(|s| s.trim()).map(|s| s.trim_end()).collect();
+        
+        //println!("{} {} {}", str_points[0], str_points[1], str_points.len());
+        let p1: Vec<i32> = str_points[0].split(",").map(|n| n.parse::<i32>().unwrap()).collect();
+        let p2: Vec<i32> = str_points[1].split(",").map(|n| n.parse::<i32>().unwrap()).collect();
+        
+        let point1 = Point {
+            x: p1[0],
+            y: p1[1]
+        };
+        let point2 = Point {
+            x: p2[0],
+            y: p2[1]
+        };
+        let line = Line{
+            start: point1,
+            end: point2
+        };
     }
     line_vec
 }
@@ -120,6 +152,17 @@ fn find_points_in_line(line: &Line) -> Vec<Point> {
                 y: y
             });
         }
+    } else {
+        // its diagonal
+        // x will always be bigger, need to check y only
+        if line.calc_slope() >  {
+            // positive slope 
+            // if start.y < end.y, start loop at start (x++, y++), else start loop at end 
+        } else {
+            // negative slope
+            // if start.y > end.y, start loop at start (x++, y--), else start loop at end 
+        }
+
     }
     line_points
 }
