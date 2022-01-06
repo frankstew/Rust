@@ -12,17 +12,22 @@ use std::collections::HashMap;
 fn main() {
    // let lines = shared::get_lines("./input.txt");
     //println!("{}", lines.len());
-    println!("Number of points where 2 or more lines overlap: {}", count_overlapping_points(count_points_hit(parse_vert_and_horiz_lines("./input.txt"))));
+    //println!("Number of points where 2 or more lines overlap: {}", count_overlapping_points(count_points_hit(parse_vert_and_horiz_lines("./input.txt"))));
     //let line = Line {
     //    start: Point {
     //        x: 12,
-    //        y: 523
+    //        y: 15
     //    },
     //    end: Point {
-    //        x: 2,
-    //        y: 524
+    //        x: 15,
+    //        y: 12
     //    }
     //};
+    //for p in find_points_in_line(&line) {
+    //    p.print();
+    //}
+
+    println!("Number of points where 2 or more lines overlap: {}", count_overlapping_points(count_points_hit(parse_all_lines("./input.txt"))));
     //let ps = find_points_in_line(line);
     //for p in ps {
     //    println!("({}, {})", p.x, p.y);
@@ -43,8 +48,18 @@ impl PartialEq for Point {
     }
 }
 
+impl Point {
+    fn clone(&self) -> Point {
+        Point {
+            x: self.x,
+            y: self.y
+        }
+    }
 
-
+    fn print(&self) {
+        println!("({}, {})", self.x, self.y);
+    }
+}
 
 struct Line {
     start: Point,
@@ -109,6 +124,7 @@ fn parse_all_lines(filename: &str) -> Vec<Line> {
             start: point1,
             end: point2
         };
+        line_vec.push(line);
     }
     line_vec
 }
@@ -155,12 +171,46 @@ fn find_points_in_line(line: &Line) -> Vec<Point> {
     } else {
         // its diagonal
         // x will always be bigger, need to check y only
-        if line.calc_slope() >  {
+        if line.calc_slope() > 0  {
             // positive slope 
             // if start.y < end.y, start loop at start (x++, y++), else start loop at end 
+            let mut start_point: Point;
+            let mut end_point: Point;
+
+            if (line.start.y < line.end.y) {
+                start_point = line.start.clone();
+                end_point = line.end.clone();
+            } else {
+                start_point = line.end.clone();
+                end_point = line.start.clone();
+            }
+            while start_point != end_point {
+                line_points.push(start_point.clone());
+                start_point.x += 1;
+                start_point.y += 1;
+            }
+            line_points.push(start_point.clone());
+            
         } else {
+            
             // negative slope
             // if start.y > end.y, start loop at start (x++, y--), else start loop at end 
+            let mut start_point: Point;
+            let mut end_point: Point;
+
+            if (line.start.y > line.end.y) {
+                start_point = line.start.clone();
+                end_point = line.end.clone();
+            } else {
+                start_point = line.end.clone();
+                end_point = line.start.clone();
+            }
+            while start_point != end_point {
+                line_points.push(start_point.clone());
+                start_point.x += 1;
+                start_point.y -= 1;
+            }
+            line_points.push(start_point.clone());
         }
 
     }
