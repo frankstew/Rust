@@ -70,5 +70,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "d7p1"
+version = "0.1.0"
+dependencies = [
+ "shared",
+]
+
+[[package]]
+name = "d7p2"
+version = "0.1.0"
+dependencies = [
+ "shared",
+]
+
+[[package]]
 name = "shared"
 version = "0.1.0"
