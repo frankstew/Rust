@@ -1,10 +1,7 @@
 use shared;
 // looping and storing vec is too slow/big (stack overflow)
 fn main() {
-    //for mut i in 1..14 {
-    //    println!("{}", f.num_offspring_in_days(&mut i));
-    //}
-    //this would work but its very very very slow, can use array with positional args ([num fish
+    //recursive find all descendents for each initial fish would work but its very very very slow (I tried), can use array with positional args ([num fish
     //with 0 days until repro, num fish with 1 day until repro, ...., num fish with 8 days until
     //repro])
 
