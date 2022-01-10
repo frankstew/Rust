@@ -1,39 +1,41 @@
 use std::collections::HashMap;
-use std::error;
+use std::error::Error;
 
-fn main() {
-
-    let x = parse_full_input("./input2.txt");
-    let a = vec![String::from("acedgfb"), "cdfbe".to_string(), "gcdfa".to_string(), "fbcad".to_string(), "dab".to_string(), "cefabd".to_string(), "cdfgeb".to_string(), "eafb".to_string(), "cagedb".to_string(), "ab".to_string()];
-    //let b = vec![String::from("cdfeb"), String::from("fcadb"), String::from("cdfeb"), String::from("cdbaf")];
-    //println!("{:?}", a);
-    let y = find_num_pos(a.clone());
-    //let z = which_num(&b[3], a.clone(), &y);
-    println!("{:?}", y);
-    //println!("{:?}", z);
-    //let mut sum = 0; 
-    //for signal in &x {
-    //        let mut num_pos = [0; 10];
-    //        num_pos = find_num_pos(signal[0].clone());
-    //        println!("{:?}", signal[0].clone());
-    //        println!("{:?}", num_pos.clone());
-    //    //for pattern in &signal[0] {
-    //    //    num_pos = find_num_pos(pattern.clone());
-    //    //    print!("{:?} ", num_pos);
-    //    //}
-    //    //print!(" | ");
-    //    let mut num = Vec::new();
-    //    for output in &signal[1] {
-    //        num.push(which_num(output, signal[0].clone(), &num_pos));
-    //        //print!("{}", which_num(output, signal[0].clone(), &num_pos))
-    //    }
-    //    let i = merge_digits(&num);
-    //    sum += i; 
-    //    println!("{}", i);
-    //}
+fn main() -> Result<(), Box<dyn Error>> {
+    let x = parse_full_input("./input.txt");
+    let mut sum = 0; 
+    for signal in &x {
+        for i in &signal[0] {
+            print!("{} ", i);
+        }
+        print!("|");
+        for i in &signal[1] {
+            print!(" {}", i);
+        }
+        let num_pos = find_num_pos(&signal[0]);
+        let mut num = Vec::new();
+        for output in &signal[1] {
+            num.push(which_num(output, &signal[0], &num_pos).ok_or("which_num failed")?);
+        }
+        let i = merge_digits(&num);
+        println!(": {}", i);
+        sum += i; 
+    }
+    println!("--------------------------------------------------------------------------------------------------");
+    println!("Sum of line outputs: {}", sum);
+    return Ok(());
 }
 
-//[[[inpu1], [out1]], [[in1], [ou2]], ...]
+fn merge_digits(num_list: &Vec<i32>) -> i32 {
+    let base: i32 = 10;
+    let mut sum = 0;
+    for i in (0..num_list.len()).rev() {
+        sum += base.pow((num_list.len() - i - 1).try_into().unwrap()) * num_list[i];
+    }
+    sum
+}
+
+//[[[in1], [out1]], [[in1], [ouy2]], ...]
 fn parse_full_input(filename: &str) -> Vec<Vec<Vec<String>>> {
     let lines = shared::get_lines(filename);
     let mut res = Vec::new();
@@ -46,169 +48,118 @@ fn parse_full_input(filename: &str) -> Vec<Vec<Vec<String>>> {
     res
 }
 
-fn which_num(s: &String, input: Vec<String>, num_pos: &[i32]) -> i32 {
-    let zero = &input[num_pos[0] as usize];
-    let one = &input[num_pos[1] as usize];
-    let two = &input[num_pos[2] as usize];
-    let three = &input[num_pos[3] as usize];
-    let four = &input[num_pos[4] as usize];
-    let five = &input[num_pos[5] as usize];
-    let six = &input[num_pos[6] as usize];
-    let seven = &input[num_pos[7] as usize];
-    let eight = &input[num_pos[8] as usize];
-    let nine = &input[num_pos[9] as usize];
-    return -1;
-//    if (contains(s.clone(), zero.clone()) && contains(zero.clone(), s.clone(),)) {
-//        return 0;
-//    } else if contains(s.clone(), one.clone()) && contains(one.clone(), s.clone(),) {
-//        return 1;
-//    } else if contains(s.clone(), two.clone()) && contains(two.clone(), s.clone(),) {
-//        return 2;
-//    } else if contains(s.clone(), three.clone()) && contains(three.clone(), s.clone(),) {
-//        return 3;
-//    } else if contains(s.clone(), four.clone()) && contains(four.clone(), s.clone(),) {
-//        return 4;
-//    } else if contains(s.clone(), five.clone()) && contains(five.clone(), s.clone(),) {
-//        return 5;
-//    } else if contains(s.clone(), six.clone()) && contains(six.clone(), s.clone(),) {
-//        return 6;
-//    } else if contains(s.clone(), seven.clone()) && contains(seven.clone(), s.clone(),) {
-//        return 7;
-//    } else if contains(s.clone(), eight.clone()) && contains(eight.clone(), s.clone(),) {
-//        return 8;
-//    } else if contains(s.clone(), nine.clone()) && contains(nine.clone(), s.clone(),) {
-//        return 9;
-//    } else {
-//        return -1;
-//    }
+fn which_num(s: &String, input: &Vec<String>, num_pos: &HashMap<i32, usize>) -> Option<i32> {
+    let zero = &input[num_pos.get(&0)?.to_owned()];
+    let one = &input[num_pos.get(&1)?.to_owned()];
+    let two = &input[num_pos.get(&2)?.to_owned()];
+    let three = &input[num_pos.get(&3)?.to_owned()];
+    let four = &input[num_pos.get(&4)?.to_owned()];
+    let five = &input[num_pos.get(&5)?.to_owned()];
+    let six = &input[num_pos.get(&6)?.to_owned()];
+    let seven = &input[num_pos.get(&7)?.to_owned()];
+    let eight = &input[num_pos.get(&8)?.to_owned()];
+    let nine = &input[num_pos.get(&9)?.to_owned()];
+    match s {
+        s if (contains(s, zero) && contains(zero, s)) => return Some(0),
+        s if contains(s, one) && contains(one, s) => return Some(1),
+        s if contains(s, two) && contains(two, s) => return Some(2),
+        s if contains(s, three) && contains(three, s) => return Some(3),
+        s if contains(s, four) && contains(four, s) => return Some(4),
+        s if contains(s, five) && contains(five, s) => return Some(5),
+        s if contains(s, six) && contains(six, s) => return Some(6),
+        s if contains(s, seven) && contains(seven, s) => return Some(7),
+        s if contains(s, eight) && contains(eight, s) => return Some(8),
+        s if contains(s, nine) && contains(nine, s) => return Some(9),
+        _ => return None 
+    }
 }
 
-fn find_num_pos(pattern: Vec<String>) -> HashMap<i32, usize>{
+fn find_num_pos(pattern: &Vec<String>) -> HashMap<i32, usize>{
     let mut num_pos = HashMap::new();
     find_1_4_7_8(&pattern, &mut num_pos);
-    //could try this, would be more readable
     find_three(&pattern, &mut num_pos);
     find_nine(&pattern, &mut num_pos);
     find_five(&pattern, &mut num_pos);
     find_two(&pattern, &mut num_pos);
     find_six(&pattern, &mut num_pos);
-    find_zero(&pattern, &mut num_pos);
-    //couls also try hashmaps, would have to loop over it but I think thats fine with iter(), its
-    //2am and my brain is fried but this function finally works
+    find_zero(&mut num_pos);
     num_pos
 
 }
 
-enum GeneralError {
-
-}
-
 fn find_three(pattern: &Vec<String>, num_pos: &mut HashMap<i32, usize>) -> core::option::Option<()> {
-    let mut index = 0;
     let one = &pattern[num_pos.get(&1)?.to_owned()];
-    while true {
+    for index in 0..pattern.len() {
         if is_three(&pattern[index], one) {
             num_pos.insert(3, index);
             return Some(());
         }
-        index += 1;
     }
     println!("Couldn't find 3 in {:?}", pattern);
     return None;
 }
 
 fn find_nine(pattern: &Vec<String>, num_pos: &mut HashMap<i32, usize>) -> core::option::Option<()> {
-    let mut index = 0;
     let three = &pattern[num_pos.get(&3)?.to_owned()];
     let four = &pattern[num_pos.get(&4)?.to_owned()];
-    while true {
+    for index in 0..pattern.len() {
         if is_nine(&pattern[index], three, four) {
             num_pos.insert(9, index);
             return Some(());
         }
-        index += 1;
     }
     println!("Couldn't find 9 in {:?}", pattern);
     return None;
 }
 
 fn find_five(pattern: &Vec<String>, num_pos: &mut HashMap<i32, usize>) -> core::option::Option<()> {
-    return None;
-    let mut index = 0;
-    let one = &pattern[num_pos.get(&1)?.to_owned()];
-    while true {
-        if is_three(&pattern[index], one) {
-            num_pos.insert(3, index);
+    let three = &pattern[num_pos.get(&3)?.to_owned()];
+    let nine = &pattern[num_pos.get(&9)?.to_owned()];
+    for index in 0..pattern.len() {
+        if is_five(&pattern[index], three, nine) {
+            num_pos.insert(5, index);
             return Some(());
         }
-        index += 1;
     }
-    println!("Couldn't find 3 in {:?}", pattern);
+    println!("Couldn't find 5 in {:?}", pattern);
     return None;
 }
 
 fn find_two(pattern: &Vec<String>, num_pos: &mut HashMap<i32, usize>) -> core::option::Option<()> {
-    return None;
-    let mut index = 0;
-    let one = &pattern[num_pos.get(&1)?.to_owned()];
-    while true {
-        if is_three(&pattern[index], one) {
-            num_pos.insert(3, index);
+    let three = &pattern[num_pos.get(&3)?.to_owned()];
+    let five = &pattern[num_pos.get(&5)?.to_owned()];
+    for index in 0..pattern.len() {
+        if is_two(&pattern[index], three, five) {
+            num_pos.insert(2, index);
             return Some(());
         }
-        index += 1;
     }
     println!("Couldn't find 3 in {:?}", pattern);
     return None;
 }
 
 fn find_six(pattern: &Vec<String>, num_pos: &mut HashMap<i32, usize>) -> core::option::Option<()> {
-    return None;
-    let mut index = 0;
-    let one = &pattern[num_pos.get(&1)?.to_owned()];
-    while true {
-        if is_three(&pattern[index], one) {
-            num_pos.insert(3, index);
+    let five = &pattern[num_pos.get(&5)?.to_owned()];
+    let nine = &pattern[num_pos.get(&9)?.to_owned()];
+    for index in 0..pattern.len() {
+        if is_six(&pattern[index], five, nine) {
+            num_pos.insert(6, index);
             return Some(());
         }
-        index += 1;
     }
-    println!("Couldn't find 3 in {:?}", pattern);
     return None;
 }
 
-fn find_zero(pattern: &Vec<String>, num_pos: &mut HashMap<i32, usize>) -> core::option::Option<()>{
-    return None;
-    let mut index = 0;
-    let one = &pattern[num_pos.get(&1)?.to_owned()];
-    while true {
-        if is_three(&pattern[index], one) {
-            num_pos.insert(3, index);
-            return Some(());
-        }
-        index += 1;
+fn find_zero(num_pos: &mut HashMap<i32, usize>) -> core::option::Option<()>{
+    let sum: i32 = (0..10).sum();
+    let mut sum2 = 0;
+    for (_key, value) in &*num_pos {
+        sum2 += value.to_owned() as i32;
     }
-    println!("Couldn't find 3 in {:?}", pattern);
-    return None;
+    num_pos.insert(0, (sum - sum2) as usize);
+    return Some(());
 }
 
-//fn set_zero(num_pos: &mut [i32]) {
-//    let mut found_nums = [false; 10];
-//    for i in 1..num_pos.len() {
-//        found_nums[num_pos[i] as usize] = true;
-//    }
-//    num_pos[0] = found_nums.iter().position(|&r| r == false).unwrap() as i32; 
-//}
-
-fn count_true(vec: &Vec<bool>) -> i32 {
-    let mut num_true = 0;
-    for i in vec {
-        if *i {
-            num_true += 1;
-        }
-    }
-    num_true
-}
 
     // (len = 5 and contains 1) = 3
 fn is_three(s: &String, one: &String) -> bool {
@@ -219,21 +170,21 @@ fn is_three(s: &String, one: &String) -> bool {
 fn is_nine(s: &String, three: &String, four: &String) -> bool {
     return s.len() == 6 && contains(s, three) && contains(s, four); 
 }
-//
-//    // (len = 5 and 9 contains and is not 3) = 5
-//fn is_five(s: String, nine: String, three: String) -> bool {
-//    return s.len() == 5 && contains(nine, s.clone()) && !contains(s, three);
-//}
-//
-//    // (len = 5 and is not 5 or 3) = 2
-//fn is_two(s: String, five: String, three: String) -> bool {
-//    return s.len() == 5 && !contains(s.clone(), five) && !contains(s, three);
-//}
-//
-//    // (len = 6 and contains 5, is not 9) = 6
-//fn is_six(s: String, five: String, nine: String) -> bool {
-//    return s.len() == 6 && contains(s.clone(), five) && !contains(s, nine); 
-//}
+
+    // (len = 5 and 9 contains and is not 3) = 5
+fn is_five(s: &String, three: &String, nine: &String) -> bool {
+    return s.len() == 5 && contains(nine, s) && !contains(s, three);
+}
+
+    // (len = 5 and is not 5 or 3) = 2
+fn is_two(s: &String, three: &String, five: &String) -> bool {
+    return s.len() == 5 && !contains(s, five) && !contains(s, three);
+}
+
+    // (len = 6 and contains 5, is not 9) = 6
+fn is_six(s: &String, five: &String, nine: &String) -> bool {
+    return s.len() == 6 && contains(s, five) && !contains(s, nine); 
+}
 
 fn contains(s1: &String, s2: &String) -> bool {
     for s in s2.chars() {
@@ -256,27 +207,4 @@ fn find_1_4_7_8(pattern: &Vec<String>, num_pos: &mut HashMap<i32, usize>) {
             num_pos.insert(8, p_ind);
         }
     }
-}
-
-fn parse_input(filename: &str) -> Vec<Vec<String>> {
-    let lines = shared::get_lines(filename);
-    let mut res = Vec::new();
-    for line in lines {
-        let output = line.split("|").map(|s| s.to_owned()).collect::<Vec<String>>();
-        let parsed_output = output[1].split(" ").map(|s| s.to_owned()).collect::<Vec<String>>(); 
-        res.push(parsed_output);
-    }
-    res
-}
-
-fn count_nums_with_unique_num_segments(strs: Vec<Vec<String>>) -> i32 {
-    let mut num_uniques = 0;
-    for output in strs {
-        for string in output {
-            if string.len() == 2 || string.len() == 4 || string.len() == 3 || string.len() == 7 {
-                num_uniques += 1
-            }
-        }
-    }
-    num_uniques
 }
