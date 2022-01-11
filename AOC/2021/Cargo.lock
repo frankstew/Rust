@@ -3,6 +3,20 @@
 version = 3
 
 [[package]]
+name = "d10p1"
+version = "0.1.0"
+dependencies = [
+ "shared",
+]
+
+[[package]]
+name = "d10p2"
+version = "0.1.0"
+dependencies = [
+ "shared",
+]
+
+[[package]]
 name = "d2p1"
 version = "0.1.0"
 dependencies = [
@@ -92,6 +106,20 @@ dependencies = [
 
 [[package]]
 name = "d8p2"
+version = "0.1.0"
+dependencies = [
+ "shared",
+]
+
+[[package]]
+name = "d9p1"
+version = "0.1.0"
+dependencies = [
+ "shared",
+]
+
+[[package]]
+name = "d9p2"
 version = "0.1.0"
 dependencies = [
  "shared",
