@@ -1,25 +1,29 @@
 use shared;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let incomplete_lines: Vec<String> = parse_input("./input2.txt").into_iter().filter(|line| is_valid_bool(&line)).collect();
-    println!("{}", incomplete_lines.len());
+    let incomplete_lines: Vec<String> = parse_input("./input.txt").into_iter().filter(|line| is_valid_bool(&line)).collect();
+    let mut scores = Vec::new();
     for line in incomplete_lines {
-        let ending = complete_line(&line);
+        let ending = complete_line(&line).ok_or("Who knows")?;
+        let score = calc_score_for_ending(&ending);
         // reverse line ending to get actual end
         print!("{:?}        ", line);
-        println!("{:?}", ending);
+        let ending_combined = combine_char_vec(&ending);
+        println!("{:?}: {}", ending_combined, score);
+        scores.push(score);
     }
+    scores.sort();
+    println!("Middle score is {}", scores[scores.len() / 2 as usize]);
 
-//    let mut score = 0;
-//    for l in lines {
-//        //println!("{}: {}", is_valid(&l).ok_or("Isk")?, &l);
-//        let val = is_valid(&l).ok_or("idfk")?;
-//        if !val.0 {
-//            score += calc_score(&val.1); 
-//        }
-//    }
-//    println!("score is: {}", score);
     Ok(())
+}
+
+fn combine_char_vec(ending: &Vec<char>) -> String {
+    let mut s = String::from("");
+    for c in ending {
+        s.push(*c);
+    }
+    s
 }
 
 fn parse_input(filename: &str) -> Vec<String> {
@@ -59,13 +63,11 @@ fn is_valid(line: &String) -> Option<(bool, char)> {
             stack.push(c);
         } else {
             if stack.len() == 0 {
-                println!("Invalid closing character, couldn't find matching delimiter for '{}'", c);
                 return Some((false, c));
             }
             let last_open = stack.pop()?;
             if !is_matching(&last_open, &c) {
                 // invalid line
-                println!("Expected '{}', found '{}'", get_matching(&last_open), c);
                 return Some((false, c));
             }
         }
@@ -99,12 +101,21 @@ fn is_opening_char(c: &char) -> bool {
     c == &'(' || c == &'{' || c == &'[' || c == &'<'
 }
 
-fn calc_score(c: &char) -> i32 {
+fn calc_score_for_char(c: &char) -> u64 {
     match c {
-        &')' => return 3,
-        &']' => return 57,
-        &'}' => return 1197,
-        &'>' => return 25137,
+        &')' => return 1,
+        &']' => return 2,
+        &'}' => return 3,
+        &'>' => return 4,
         _ => return 0
     }
+}
+
+fn calc_score_for_ending(ending: &Vec<char>) -> u64 {
+    let mut score: u64 = 0;
+    for i in ending {
+        score *= 5;
+        score += calc_score_for_char(&i);
+    }
+    score
 }
