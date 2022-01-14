@@ -1,21 +1,51 @@
 use shared;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let lines = parse_input("./input.txt");
-    let mut score = 0;
-    for l in lines {
-        //println!("{}: {}", is_valid(&l).ok_or("Isk")?, &l);
-        let val = is_valid(&l).ok_or("idfk")?;
-        if !val.0 {
-            score += calc_score(&val.1); 
-        }
+    let incomplete_lines: Vec<String> = parse_input("./input2.txt").into_iter().filter(|line| is_valid_bool(&line)).collect();
+    println!("{}", incomplete_lines.len());
+    for line in incomplete_lines {
+        let ending = complete_line(&line);
+        // reverse line ending to get actual end
+        print!("{:?}        ", line);
+        println!("{:?}", ending);
     }
-    println!("score is: {}", score);
+
+//    let mut score = 0;
+//    for l in lines {
+//        //println!("{}: {}", is_valid(&l).ok_or("Isk")?, &l);
+//        let val = is_valid(&l).ok_or("idfk")?;
+//        if !val.0 {
+//            score += calc_score(&val.1); 
+//        }
+//    }
+//    println!("score is: {}", score);
     Ok(())
 }
 
 fn parse_input(filename: &str) -> Vec<String> {
     shared::get_lines(filename)
+}
+
+fn complete_line(line: &String) -> Option<Vec<char>> {
+    let mut stack = Vec::new();
+    for c in line.chars() {
+        if is_opening_char(&c) {
+            stack.push(c);
+        } else {
+            stack.pop();
+        }
+
+    }
+    Some(stack)
+    
+}
+
+fn is_valid_bool(line: &String) -> bool {
+    let val = is_valid(line);
+    match val {
+        Some(b) => return b.0,
+        _ => return false
+    }
 }
 
 fn is_valid(line: &String) -> Option<(bool, char)> {
