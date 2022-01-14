@@ -36,6 +36,10 @@ fn complete_line(line: &String) -> Option<Vec<char>> {
         }
 
     }
+    stack.reverse();
+    for i in 0..stack.len() {
+        stack[i] = get_matching(&stack[i]); 
+    }
     Some(stack)
     
 }
