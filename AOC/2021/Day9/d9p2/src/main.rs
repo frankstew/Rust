@@ -162,7 +162,7 @@ impl Grid {
         if row == 0 {
             // top
             if col == 0 {
-                // top right 
+                // top left 
                 adj_pts.push(Point { x: row, y: col + 1 });
                 adj_pts.push(Point { x: row + 1, y: col });
             } else if col == self.points[0].len() - 1 {
@@ -178,7 +178,7 @@ impl Grid {
         } else if row == self.points.len() - 1 {
             // bottom
             if col == 0 {
-                // bottom right 
+                // bottom left 
                 adj_pts.push(Point { x: row, y: col + 1 });
                 adj_pts.push(Point { x: row - 1, y: col });
             } else if col == self.points[0].len() - 1 {
