@@ -50,8 +50,8 @@ pub fn print_vec<T: ToString>(v: &Vec<T>) {
 
 #[derive(Hash, Debug)]
 pub struct Point {
-    x: usize,
-    y: usize
+    pub x: usize,
+    pub y: usize
 }
 
 impl PartialEq for Point {
@@ -63,7 +63,7 @@ impl PartialEq for Point {
 impl Eq for Point {}
 
 impl Point {
-    fn clone(&self) -> Point {
+    pub fn clone(&self) -> Point {
         Point { x: self.x, y: self.y }
     }
 }
