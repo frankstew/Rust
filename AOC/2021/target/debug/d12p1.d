@@ -1,0 +1,1 @@
+C:\Users\Frank\Desktop\Learning\Programming\Rust\AOC\2021\target\debug\d12p1.exe: C:\Users\Frank\Desktop\Learning\Programming\Rust\AOC\2021\Day12\d12p1\src\main.rs C:\Users\Frank\Desktop\Learning\Programming\Rust\AOC\2021\shared\src\lib.rs
