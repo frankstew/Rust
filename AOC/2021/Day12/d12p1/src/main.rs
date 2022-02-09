@@ -4,6 +4,7 @@ use petgraph::dot::Dot;
 use petgraph::visit::Bfs;
 use petgraph::visit::Dfs;
 use petgraph::graphmap::GraphMap;
+use std::fmt;
 
 //finish parsing
 //plan: find all paths using bfs kinda thing, the stop/remove the ones that contain two hits of a
@@ -11,28 +12,42 @@ use petgraph::graphmap::GraphMap;
 fn main() {
     //let g = initialize_test_graph();
     //println!("{:?}", Dot::new(&g));
-    get_graph_bearings(); 
-    //parse_input("./input2.txt");
+    //get_graph_bearings(); 
+    parse_input("./input2.txt");
+
+
 }
+
+
 
 struct CaveNode {
     name: String,
     is_small: bool
 }
 
+impl fmt::Display for CaveNode {
+    fn fmt(&self, f:&mut fmt::Formatter) -> Result<(), std::fmt::Error> {
+        write!(f, "(name: {}, small: {})", self.name, self.is_small);
+        Ok(())
+    }
+}
+
+
 fn parse_input(filename: &str) {
     let lines = shared::get_lines(filename);
     //let mut g = Graph::new_undirected();
     for line in lines {
         let nodes = line.split("-").map(|node_name| convert_to_cave_node(node_name.to_string())).collect::<Vec<CaveNode>>();
-    
+        for node in nodes {
+            println!("{}", node);
+        }
     }
 }
 
 fn convert_to_cave_node(node_name: String) -> CaveNode {
     CaveNode {
         name: node_name.clone(),
-        is_small: is_all_upper(&node_name)
+        is_small: !is_all_upper(&node_name)
     }
 }
 
