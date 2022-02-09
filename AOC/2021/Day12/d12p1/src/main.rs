@@ -4,7 +4,12 @@ use petgraph::dot::Dot;
 use petgraph::visit::Bfs;
 use petgraph::visit::Dfs;
 use petgraph::graphmap::GraphMap;
+use petgraph::graphmap::NodeTrait;
 use std::fmt;
+use core::marker;
+use core::cmp;
+use core::hash;
+use std::cmp::Ordering;
 
 //finish parsing
 //plan: find all paths using bfs kinda thing, the stop/remove the ones that contain two hits of a
@@ -12,43 +17,45 @@ use std::fmt;
 fn main() {
     //let g = initialize_test_graph();
     //println!("{:?}", Dot::new(&g));
-    //get_graph_bearings(); 
-    parse_input("./input2.txt");
+    get_graph_bearings(); 
+    //parse_input("./input2.txt");
 
 
 }
 
 
-
-struct CaveNode {
-    name: String,
-    is_small: bool
-}
-
-impl fmt::Display for CaveNode {
-    fn fmt(&self, f:&mut fmt::Formatter) -> Result<(), std::fmt::Error> {
-        write!(f, "(name: {}, small: {})", self.name, self.is_small);
-        Ok(())
-    }
-}
-
-
-fn parse_input(filename: &str) {
+fn parse_input(filename: &str) -> GraphMap::<(String, bool), i8, petgraph::Undirected> {
+    let mut caveNodeGraph = GraphMap::<(String, bool), i8, petgraph::Undirected>::new();
     let lines = shared::get_lines(filename);
     //let mut g = Graph::new_undirected();
     for line in lines {
-        let nodes = line.split("-").map(|node_name| convert_to_cave_node(node_name.to_string())).collect::<Vec<CaveNode>>();
+        let nodes = line.split("-").map(|node_name| convert_to_cave_node(node_name.to_string())).collect::<Vec<(String, bool)>>();
+        println!("linestart");
         for node in nodes {
-            println!("{}", node);
+            println!("{:?}", node);
         }
+        caveNodeGraph.add_node(nodes[0]);
+        caveNodeGraph.add_node(nodes[1]);
+        println!("lineEnd");
+        //add_nodes_and_edge(&nodes, &mut caveNodeGraph);
+
     }
+        caveNodeGraph
 }
 
-fn convert_to_cave_node(node_name: String) -> CaveNode {
-    CaveNode {
-        name: node_name.clone(),
-        is_small: !is_all_upper(&node_name)
-    }
+fn add_nodes_and_edge(nodes: Vec<(String, bool)> , graph: &mut GraphMap::<(String, bool), i8, <(dyn petgraph::EdgeType + 'static) as Trait>::Undirected>) {
+ 
+   if (!graph.contains_node(nodes[0])) {
+       graph.add_node(nodes[0]);
+   }
+   if (!graph.contains_node(nodes[1])) {
+       graph.add_node(nodes[1]);
+   }
+   //graph.add_edge()
+}
+
+fn convert_to_cave_node(node_name: String) -> (String, bool) {
+    (node_name.clone(), !is_all_upper(&node_name))
 }
 
 fn is_all_upper(s: &String) -> bool {
