@@ -17,48 +17,53 @@ use std::cmp::Ordering;
 fn main() {
     //let g = initialize_test_graph();
     //println!("{:?}", Dot::new(&g));
-    get_graph_bearings(); 
-    //parse_input("./input2.txt");
+    //get_graph_bearings(); 
+    parse_input("./input2.txt");
 
 
 }
 
 
-fn parse_input(filename: &str) -> GraphMap::<(String, bool), i8, petgraph::Undirected> {
-    let mut caveNodeGraph = GraphMap::<(String, bool), i8, petgraph::Undirected>::new();
+fn parse_input(filename: &str) -> GraphMap::<(&str, bool), i8, petgraph::Undirected> {
+    let mut caveNodeGraph = GraphMap::<(&str, bool), i8, petgraph::Undirected>::new();
     let lines = shared::get_lines(filename);
     //let mut g = Graph::new_undirected();
     for line in lines {
-        let nodes = line.split("-").map(|node_name| convert_to_cave_node(node_name.to_string())).collect::<Vec<(String, bool)>>();
+        let nodes = line.split("-").map(|node_name| (node_name.clone(), !is_all_upper(&node_name))).collect::<Vec<(&str, bool)>>();
+        let nodes_clone = nodes.clone();
+        shared::print_type_of(&nodes);
+        shared::print_type_of(&nodes);
         println!("linestart");
-        for node in nodes {
+        for node in &nodes {
             println!("{:?}", node);
         }
-        caveNodeGraph.add_node(nodes[0]);
-        caveNodeGraph.add_node(nodes[1]);
+        //caveNodeGraph.add_node(nodes_clone[0].clone());
+        //caveNodeGraph.add_node(nodes_clone[1].clone());
         println!("lineEnd");
         //add_nodes_and_edge(&nodes, &mut caveNodeGraph);
 
+        let x = ("A", false);
+        caveNodeGraph.add_node(x);
     }
         caveNodeGraph
 }
 
-fn add_nodes_and_edge(nodes: Vec<(String, bool)> , graph: &mut GraphMap::<(String, bool), i8, <(dyn petgraph::EdgeType + 'static) as Trait>::Undirected>) {
- 
-   if (!graph.contains_node(nodes[0])) {
-       graph.add_node(nodes[0]);
-   }
-   if (!graph.contains_node(nodes[1])) {
-       graph.add_node(nodes[1]);
-   }
-   //graph.add_edge()
-}
+//fn add_nodes_and_edge(nodes: &mut Vec<(&str, bool)> , graph: &mut GraphMap::<(&str, bool), i8, petgraph::Undirected>) {
+// 
+//   if (!graph.contains_node(nodes[0])) {
+//       graph.add_node(nodes[0]);
+//   }
+//   if (!graph.contains_node(nodes[1])) {
+//       graph.add_node(nodes[1]);
+//   }
+//   //graph.add_edge()
+//}
 
-fn convert_to_cave_node(node_name: String) -> (String, bool) {
+fn convert_to_cave_node(node_name: &'static str) -> (&'static str, bool) {
     (node_name.clone(), !is_all_upper(&node_name))
 }
 
-fn is_all_upper(s: &String) -> bool {
+fn is_all_upper(s: &str) -> bool {
     for c in s.chars() {
         if !c.is_ascii_uppercase() {
             return false;
