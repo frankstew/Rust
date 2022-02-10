@@ -21,9 +21,20 @@ fn main() {
     // pair the nodes up to create the graph from nodepairs, more readable to do this in a separate
     // step
     let nodePairs = group_nodes(&convertedNodes);
+    //print nodepairs so that I can vizualize/'debug''
     print_nodepairs(&nodePairs);
+    //create graph from nodepairs
     let caveGraph = create_graph(&nodePairs);
+    // print graph with petgraph::dot::Dot to make sure it is actually correct/visualize
     println!("{:?}", Dot::new(&caveGraph));
+    //Todo: figure out how to find these mf paths, maybe just find all from start to end and then
+    //remove any that have more than one small cave touch? probaly easiest but also makes me wanna
+    //throw up a bit. 
+    //Other option is to dfs (or something) and then make it so that we can't touch small nodes
+    //twice in path. Would be faster and cleaner, but harder to do for sure, find all then get rid
+    //of the 2xsmall is prob fine honestly, will fix it if p2 needs it, that will also give more
+    //expreience with petgraph and graphs in general and rust in general, which is kinda the whole
+    //point of this thing
 }
 
 fn group_nodes<'a>(nodes: &Vec<(&'a str , bool)>) -> Vec<Vec<(&'a str, bool)>> {
@@ -77,7 +88,6 @@ fn print_nodepairs(nodePairs: &Vec<Vec<(&str, bool)>>) {
     }
 }
 
-//Todo: make the nodes able to be added to the graph, line is being borrowed???
 fn parse_input(filename: &str) -> Vec<(String, bool)> {
     let mut result = Vec::new();
     let lines = shared::get_lines(filename);
