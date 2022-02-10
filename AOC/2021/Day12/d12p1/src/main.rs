@@ -23,7 +23,7 @@ fn main() {
 
 }
 
-
+//Todo: make the nodes able to be added to the graph, line is being borrowed???
 fn parse_input(filename: &str) -> GraphMap::<(&str, bool), i8, petgraph::Undirected> {
     let mut caveNodeGraph = GraphMap::<(&str, bool), i8, petgraph::Undirected>::new();
     let lines = shared::get_lines(filename);
