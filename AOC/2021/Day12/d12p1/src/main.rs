@@ -1,15 +1,9 @@
 use shared;
 use petgraph::Graph;
-use petgraph::dot::Dot; 
+use petgraph::dot::{Dot, Config};
 use petgraph::visit::Bfs;
 use petgraph::visit::Dfs;
 use petgraph::graphmap::GraphMap;
-use petgraph::graphmap::NodeTrait;
-use std::fmt;
-use core::marker;
-use core::cmp;
-use core::hash;
-use std::cmp::Ordering;
 
 //finish parsing
 //plan: find all paths using bfs kinda thing, the stop/remove the ones that contain two hits of a
@@ -18,34 +12,90 @@ fn main() {
     //let g = initialize_test_graph();
     //println!("{:?}", Dot::new(&g));
     //get_graph_bearings(); 
-    parse_input("./input2.txt");
+    ////parse input into Vec<(String, CaveSize)>
+    // fuck cavesize, just using bool, large = true, small = false
+    let mut nodes = parse_input("./input2.txt");
+    //convert nodes into Vec<(&str, bool)> because String can't implement Copy to be a
+    //graphnode
+    let mut convertedNodes = convert_nodes(&nodes);
+    // pair the nodes up to create the graph from nodepairs, more readable to do this in a separate
+    // step
+    let nodePairs = group_nodes(&convertedNodes);
+    print_nodepairs(&nodePairs);
+    let caveGraph = create_graph(&nodePairs);
+    println!("{:?}", Dot::new(&caveGraph));
+}
 
+fn group_nodes<'a>(nodes: &Vec<(&'a str , bool)>) -> Vec<Vec<(&'a str, bool)>> {
+    let chunks = nodes.chunks(2);
+    let mut res = Vec::new();
+    for chunk in chunks {
+        res.push(chunk.to_owned());
+    }
+    res
+}
 
+fn convert_nodes(nodes: &Vec<(String, bool)>) -> Vec<(&str, bool)> {
+    let mut res = Vec::new();
+    for node in nodes {
+        res.push((&node.0[..], node.1)); 
+    }
+    res
+}
+
+//GraphMap::<(&str, bool), i8, petgraph::Undirected> 
+//let mut caveNodeGraph = GraphMap::<(&str, bool), i8, petgraph::Undirected>::new();
+fn create_graph<'a>(nodePairs: &Vec<Vec<(&'a str, bool)>>) -> GraphMap::<(&'a str, bool), i8, petgraph::Undirected> {
+    let mut caveGraph = GraphMap::<(&str, bool), i8, petgraph::Undirected>::new();
+    for nodePair in nodePairs {
+        if (!caveGraph.contains_node(nodePair[0])) {
+            caveGraph.add_node(nodePair[0]);
+        }
+        if (!caveGraph.contains_node(nodePair[1])) {
+            caveGraph.add_node(nodePair[1]);
+        }
+        caveGraph.add_edge(nodePair[0], nodePair[1], 0);
+    }
+    println!("nodes: {}, edges: {}", caveGraph.node_count(), caveGraph.edge_count());
+    caveGraph
+}
+
+fn print_nodepairs(nodePairs: &Vec<Vec<(&str, bool)>>) {
+    println!("number of pairs: {}", nodePairs.len());
+    for nodePair in nodePairs {
+        print!("({}, ", nodePair[0].0);
+        match nodePair[0].1 {
+            false => print!("small)"),
+            true => print!("large)")
+        }
+        print!(" -- ");
+        print!("({}, ", nodePair[1].0);
+        match nodePair[1].1 {
+            false => println!("small)"),
+            true => println!("large)")
+        }
+    }
 }
 
 //Todo: make the nodes able to be added to the graph, line is being borrowed???
-fn parse_input(filename: &str) -> GraphMap::<(&str, bool), i8, petgraph::Undirected> {
-    let mut caveNodeGraph = GraphMap::<(&str, bool), i8, petgraph::Undirected>::new();
+fn parse_input(filename: &str) -> Vec<(String, bool)> {
+    let mut result = Vec::new();
     let lines = shared::get_lines(filename);
     //let mut g = Graph::new_undirected();
     for line in lines {
-        let nodes = line.split("-").map(|node_name| (node_name.clone(), !is_all_upper(&node_name))).collect::<Vec<(&str, bool)>>();
-        let nodes_clone = nodes.clone();
-        shared::print_type_of(&nodes);
-        shared::print_type_of(&nodes);
-        println!("linestart");
-        for node in &nodes {
-            println!("{:?}", node);
+        let nodePair = line.split("-").map(|node_name| (node_name.to_string(), find_cave_size(&node_name))).collect::<Vec<(String, bool)>>();
+        for node in nodePair {
+            result.push(node);
         }
-        //caveNodeGraph.add_node(nodes_clone[0].clone());
-        //caveNodeGraph.add_node(nodes_clone[1].clone());
-        println!("lineEnd");
-        //add_nodes_and_edge(&nodes, &mut caveNodeGraph);
-
-        let x = ("A", false);
-        caveNodeGraph.add_node(x);
+        //let nodes_clone = nodes.clone();
+        //shared::print_type_of(&nodes);
+        //shared::print_type_of(&nodes);
+        //println!("linestart");
+        //for node in &nodes {
+        //    println!("{:?}", node);
+        //}
     }
-        caveNodeGraph
+    result
 }
 
 //fn add_nodes_and_edge(nodes: &mut Vec<(&str, bool)> , graph: &mut GraphMap::<(&str, bool), i8, petgraph::Undirected>) {
@@ -59,8 +109,11 @@ fn parse_input(filename: &str) -> GraphMap::<(&str, bool), i8, petgraph::Undirec
 //   //graph.add_edge()
 //}
 
-fn convert_to_cave_node(node_name: &'static str) -> (&'static str, bool) {
-    (node_name.clone(), !is_all_upper(&node_name))
+fn find_cave_size(caveName: &str) -> bool {
+    if is_all_upper(caveName) {
+        return true;
+    }
+    return false;
 }
 
 fn is_all_upper(s: &str) -> bool {
