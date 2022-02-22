@@ -4,17 +4,15 @@ use petgraph::dot::{Dot, Config};
 use petgraph::visit::Bfs;
 use petgraph::visit::Dfs;
 use petgraph::graphmap::GraphMap;
+use petgraph::algo::all_simple_paths;
 
 //finish parsing
 //plan: find all paths using bfs kinda thing, the stop/remove the ones that contain two hits of a
 //small cave, or something along those lines, check for many and get rid of them as small cave issues arise 
 fn main() {
-    //let g = initialize_test_graph();
-    //println!("{:?}", Dot::new(&g));
-    //get_graph_bearings(); 
     ////parse input into Vec<(String, CaveSize)>
     // fuck cavesize, just using bool, large = true, small = false
-    let mut nodes = parse_input("./input2.txt");
+    let mut nodes = parse_input("./input3.txt");
     //convert nodes into Vec<(&str, bool)> because String can't implement Copy to be a
     //graphnode
     let mut convertedNodes = convert_nodes(&nodes);
@@ -35,6 +33,25 @@ fn main() {
     //of the 2xsmall is prob fine honestly, will fix it if p2 needs it, that will also give more
     //expreience with petgraph and graphs in general and rust in general, which is kinda the whole
     //point of this thing
+
+
+    //examples of some neighbor stuff, going to do this manually, no easy way to get all paths the
+    //way that I want with default capabilities of petgraph
+    let start = caveGraph.nodes().find(|n| n.0 == "start").unwrap();
+    let neighbors = caveGraph.neighbors(start);
+    println!("{}", start.0);
+    for node in neighbors {
+        println!("start neighbor: ({}, {})", node.0, node.1);
+    }
+    //let neigh = caveGraph.neighbors(neighbors.last().unwrap());
+    //println!("{}", neigh.count());
+    //println!("{}", neighbors.count());
+    //let end = caveGraph.nodes().last().unwrap();
+    //println!("{}", start.0);
+    //let mut dfs = Dfs::new(&caveGraph, start);
+    //while let Some(v) = dfs.next(&caveGraph) {
+    //    println!("{:?}", v);
+    //}
 }
 
 fn group_nodes<'a>(nodes: &Vec<(&'a str , bool)>) -> Vec<Vec<(&'a str, bool)>> {

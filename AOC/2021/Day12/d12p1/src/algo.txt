@@ -1,0 +1,43 @@
+start
+
+b, A        start   [start]
+
+end, d, A   b   [start, b]
+
+d, A        end [start, b, end] [[start, b, end]]
+
+A           d   [start, b, d]  [[start, b, end]]
+
+end, b, c   A [start, A]  [[start, b, end]]
+
+b, c        end [start, A, end]   [[start, b, end], [start, A, end]]
+
+end, A, d, c     b   [start, A, b] [[start, b, end], [start, A, end]]
+
+A, d, c     end [start, A, b, end] [[start, b, end], [start, A, end], [start, A, b, end]]
+
+end, c, d, c  A [start, A, b, A] [[start, b, end], [start, A, end], [start, A, b, end]]
+
+c, d, c     end [start, A, b, A, end] [[start, b, end]. [start, A, end], [start, A, b, end], [start, A, b, A, end]]
+
+A, d, c     c [start, A, b, A, c] [[start, b, end], [start, A, end], [start, A, b], start, A, b, A, end]]
+
+end, d, c   A [start, A, b, A, c, A] [[start, b, end]. [start, A, end], [start, A, b], [start, A, b, A, end]]
+
+d, c        end [start, A, b, A, c, A, end] [[start, b, end], [start, A, end], [start, A, b], [start, A, b, A, end], [start, A, b, A, c, A, end]]
+
+c           d [start, A, b, d] [[start, b, end], [start, A, end], [start, A, b], [start, A, b, A, end], [start, A, b, A, c, A, end]]
+
+A           c [start, A, c] [[...]]
+
+.
+.
+.
+.
+.
+etc...
+
+
+
+
+
