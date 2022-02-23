@@ -1,57 +1,34 @@
 use shared;
-use petgraph::Graph;
-use petgraph::dot::{Dot, Config};
-use petgraph::visit::Bfs;
-use petgraph::visit::Dfs;
-use petgraph::graphmap::GraphMap;
-use petgraph::algo::all_simple_paths;
+use std::collections::HashMap;
 
 //finish parsing
 //plan: find all paths using bfs kinda thing, the stop/remove the ones that contain two hits of a
 //small cave, or something along those lines, check for many and get rid of them as small cave issues arise 
 fn main() {
-    ////parse input into Vec<(String, CaveSize)>
-    // fuck cavesize, just using bool, large = true, small = false
-    let mut nodes = parse_input("./input3.txt");
-    //convert nodes into Vec<(&str, bool)> because String can't implement Copy to be a
-    //graphnode
-    let mut convertedNodes = convert_nodes(&nodes);
-    // pair the nodes up to create the graph from nodepairs, more readable to do this in a separate
-    // step
-    let nodePairs = group_nodes(&convertedNodes);
-    //print nodepairs so that I can vizualize/'debug''
-    print_nodepairs(&nodePairs);
-    //create graph from nodepairs
-    let caveGraph = create_graph(&nodePairs);
-    // print graph with petgraph::dot::Dot to make sure it is actually correct/visualize
-    println!("{:?}", Dot::new(&caveGraph));
-    //Todo: figure out how to find these mf paths, maybe just find all from start to end and then
-    //remove any that have more than one small cave touch? probaly easiest but also makes me wanna
-    //throw up a bit. 
-    //Other option is to dfs (or something) and then make it so that we can't touch small nodes
-    //twice in path. Would be faster and cleaner, but harder to do for sure, find all then get rid
-    //of the 2xsmall is prob fine honestly, will fix it if p2 needs it, that will also give more
-    //expreience with petgraph and graphs in general and rust in general, which is kinda the whole
-    //point of this thing
+    // maybe hashmap with lists?? HashMap<(&str, bool), Vec<(&str, bool)>>
+    //let mut cave_graph: Vec<Vec<(&str, bool)>> = parse_input("./input2.txt");
+    let nodes = parse_input("./input2.txt");
+    let converted_nodes = convert_nodes(&nodes); 
+    let grouped_nodes = group_nodes(&converted_nodes);
+    let cave_graph = create_graph(&grouped_nodes);
+    println!("size of create_graph: {}", cave_graph.len());
 
+    println!("get(&(\"start\", true)) of result from create_graph gives: [(\"{}\", {})]", cave_graph.get(&("start", true)).unwrap()[0].0, cave_graph.get(&("start", true)).unwrap()[0].1);
 
-    //examples of some neighbor stuff, going to do this manually, no easy way to get all paths the
-    //way that I want with default capabilities of petgraph
-    let start = caveGraph.nodes().find(|n| n.0 == "start").unwrap();
-    let neighbors = caveGraph.neighbors(start);
-    println!("{}", start.0);
-    for node in neighbors {
-        println!("start neighbor: ({}, {})", node.0, node.1);
-    }
-    //let neigh = caveGraph.neighbors(neighbors.last().unwrap());
-    //println!("{}", neigh.count());
-    //println!("{}", neighbors.count());
-    //let end = caveGraph.nodes().last().unwrap();
-    //println!("{}", start.0);
-    //let mut dfs = Dfs::new(&caveGraph, start);
-    //while let Some(v) = dfs.next(&caveGraph) {
-    //    println!("{:?}", v);
-    //}
+    let mut x = HashMap::new();
+    let mut v = Vec::new();
+    v.push(("a", true));
+    x.insert(("start", true), v);
+    println!("{}", x.contains_key(&("start", true)));
+    let r = x.get(&("start", true)).unwrap()[0].0;
+    println!("{}", r);
+}
+
+//return adjacency list of graph HashMap<(&str, bool), Vec<(&str, bool)>>
+fn create_graph<'a>(node_pairs: &Vec<Vec<(&'a str, bool)>>) -> HashMap<(&'a str, bool), Vec<(&'a str, bool)>> {
+    let mut result = HashMap::new();
+    result.insert(("start", true), vec!(("A", false)));
+    result
 }
 
 fn group_nodes<'a>(nodes: &Vec<(&'a str , bool)>) -> Vec<Vec<(&'a str, bool)>> {
@@ -71,41 +48,8 @@ fn convert_nodes(nodes: &Vec<(String, bool)>) -> Vec<(&str, bool)> {
     res
 }
 
-//GraphMap::<(&str, bool), i8, petgraph::Undirected> 
-//let mut caveNodeGraph = GraphMap::<(&str, bool), i8, petgraph::Undirected>::new();
-fn create_graph<'a>(nodePairs: &Vec<Vec<(&'a str, bool)>>) -> GraphMap::<(&'a str, bool), i8, petgraph::Undirected> {
-    let mut caveGraph = GraphMap::<(&str, bool), i8, petgraph::Undirected>::new();
-    for nodePair in nodePairs {
-        if (!caveGraph.contains_node(nodePair[0])) {
-            caveGraph.add_node(nodePair[0]);
-        }
-        if (!caveGraph.contains_node(nodePair[1])) {
-            caveGraph.add_node(nodePair[1]);
-        }
-        caveGraph.add_edge(nodePair[0], nodePair[1], 0);
-    }
-    println!("nodes: {}, edges: {}", caveGraph.node_count(), caveGraph.edge_count());
-    caveGraph
-}
-
-fn print_nodepairs(nodePairs: &Vec<Vec<(&str, bool)>>) {
-    println!("number of pairs: {}", nodePairs.len());
-    for nodePair in nodePairs {
-        print!("({}, ", nodePair[0].0);
-        match nodePair[0].1 {
-            false => print!("small)"),
-            true => print!("large)")
-        }
-        print!(" -- ");
-        print!("({}, ", nodePair[1].0);
-        match nodePair[1].1 {
-            false => println!("small)"),
-            true => println!("large)")
-        }
-    }
-}
-
 fn parse_input(filename: &str) -> Vec<(String, bool)> {
+    // create nodes ()
     let mut result = Vec::new();
     let lines = shared::get_lines(filename);
     //let mut g = Graph::new_undirected();
@@ -136,11 +80,12 @@ fn parse_input(filename: &str) -> Vec<(String, bool)> {
 //   //graph.add_edge()
 //}
 
+//return is_small(cave)
 fn find_cave_size(caveName: &str) -> bool {
     if is_all_upper(caveName) {
-        return true;
+        return false;
     }
-    return false;
+    return true;
 }
 
 fn is_all_upper(s: &str) -> bool {
@@ -150,63 +95,4 @@ fn is_all_upper(s: &str) -> bool {
         }
     }
     true
-}
-// petgraph is Graph<nodetype, edgetype (i8 for us bc we are not weighting them), type of edge (default is directed, or make undirected), index type (default is u32, determines max size of graph)>
-// creates graph created in input2.txt for testing
-fn initialize_test_graph() -> GraphMap<(&'static str, bool), i8, petgraph::Undirected> {
-    let mut g = GraphMap::<(&str, bool), i8, petgraph::Undirected>::new();
-    let start = g.add_node(("start", true));
-    let A = g.add_node(("A", false));
-    let b = g.add_node(("b", true));
-    let c = g.add_node(("c", true));
-    let d = g.add_node(("d", true));
-    let end = g.add_node(("end", true));
-    g.add_edge(start, A, 0);
-    g.add_edge(start, b, 0);
-    g.add_edge(A, c, 0);
-    g.add_edge(A, b, 0);
-    g.add_edge(b, d, 0);
-    g.add_edge(A, end, 0);
-    g.add_edge(b, end, 0);
-    //println!("{:?}", Dot::new(&g));
-    g
-}
-
-// creates a simple binary tree and prints a bfs and dfs
-//              0
-//           1     2 
-//         3   4  5  6
-//        7 8  9
-fn get_graph_bearings() {
-    let mut g = GraphMap::<(&str, bool), i8, petgraph::Undirected>::new();
-    let zero = g.add_node(("0", true));
-    let one = g.add_node(("1", false));
-    let two = g.add_node(("2", true));
-    let three = g.add_node(("3", true));
-    let four = g.add_node(("4", true));
-    let five = g.add_node(("5", true));
-    let six = g.add_node(("6", true));
-    let seven = g.add_node(("7", true));
-    let eight = g.add_node(("8", true));
-    let nine = g.add_node(("9", true));
-    g.add_edge(zero, one, 0);
-    g.add_edge(zero, two, 0);
-    g.add_edge(one, three, 0);
-    g.add_edge(one, four, 0);
-    g.add_edge(two, five, 0);
-    g.add_edge(two, six, 0);
-    g.add_edge(three, seven, 0);
-    g.add_edge(three, eight, 0);
-    g.add_edge(four, nine, 0);
-    let mut bfs = Bfs::new(&g, zero);
-    println!("BFS");
-    while let Some(v) = bfs.next(&g) {
-        println!("{:?}", v);
-    }
-    println!("DFS");
-    let mut dfs = Dfs::new(&g, zero);
-    while let Some(v) = dfs.next(&g) {
-        println!("{:?}", v);
-    }
-    println!("{:?}", Dot::new(&g));
 }
