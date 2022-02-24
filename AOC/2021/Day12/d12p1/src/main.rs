@@ -13,8 +13,42 @@ fn main() {
     let cave_graph = create_graph(&grouped_nodes);
     println!();
     print_graph(&cave_graph);
+    let path = find_a_path(&cave_graph);
+    print_path(&path); 
+}
+
+fn print_path(path: &Vec<(&str, bool)>) {
+    print!("PATH: ");
+    for i in 0..path.len() {
+        print!("({}, {})", path[i].0, path[i].1);
+        if (i != path.len() - 1) {
+            print!(" -- ");
+        }
+    }
     println!();
 }
+
+fn find_a_path<'a>(g: &HashMap<(&'a str, bool), Vec<(&'a str, bool)>>) -> Vec<(&'a str, bool)> {
+    let start = ("start", true);
+    let mut curr_node: (&str, bool) = start;
+    //use this as a stack fr dfs/path finding
+    let mut path = vec!(start);
+    loop {
+        let connected_nodes = g.get(&curr_node).unwrap();
+        if connected_nodes.contains(&("end", true)) {
+            path.push(("end", true));
+            break;
+        }
+        //always looks at first node, causes infinite loops most of the time, switch to work with
+        //stack(vec) and choose curr_node based on that
+        //should be able to all simple paths and only mark node as visited if its a small cave https://www.baeldung.com/cs/simple-paths-between-two-vertices
+        curr_node = connected_nodes[0];
+        path.push(curr_node);
+    }
+    path
+
+}
+
 
 fn print_graph(g: &HashMap<(&str, bool), Vec<(&str, bool)>>) {
     for (key, nodes) in &*g {
