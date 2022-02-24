@@ -7,22 +7,26 @@ use std::collections::HashMap;
 fn main() {
     // maybe hashmap with lists?? HashMap<(&str, bool), Vec<(&str, bool)>>
     //let mut cave_graph: Vec<Vec<(&str, bool)>> = parse_input("./input2.txt");
-    let nodes = parse_input("./input3.txt");
+    let nodes = parse_input("./input2.txt");
     let converted_nodes = convert_nodes(&nodes); 
     let grouped_nodes = group_nodes(&converted_nodes);
     let cave_graph = create_graph(&grouped_nodes);
-    println!("size of create_graph: {}", cave_graph.len());
-    //todo: print graph function, next exercise in rust
+    println!();
+    print_graph(&cave_graph);
+    println!();
+}
 
-    println!("get(&(\"start\", true)) of result from create_graph gives: [(\"{}\", {})]", cave_graph.get(&("start", true)).unwrap()[0].0, cave_graph.get(&("start", true)).unwrap()[0].1);
-
-    let mut x = HashMap::new();
-    let mut v = Vec::new();
-    v.push(("a", true));
-    x.insert(("start", true), v);
-    println!("{}", x.contains_key(&("start", true)));
-    let r = x.get(&("start", true)).unwrap()[0].0;
-    println!("{}", r);
+fn print_graph(g: &HashMap<(&str, bool), Vec<(&str, bool)>>) {
+    for (key, nodes) in &*g {
+        print!("({}, {}) -- [", key.0, key.1);
+        for i in 0..nodes.len() {
+            print!("({}, {})", nodes[i].0, nodes[i].1);
+            if (i != nodes.len() - 1) {
+                print!(", ");
+            }
+        }
+        println!("]");
+    }
 }
 
 //return adjacency list of graph HashMap<(&str, bool), Vec<(&str, bool)>>
@@ -30,7 +34,6 @@ fn create_graph<'a>(node_pairs: &Vec<Vec<(&'a str, bool)>>) -> HashMap<(&'a str,
     let mut result: HashMap<(&'a str, bool), Vec<(&'a str, bool)>> = HashMap::new();
     for node_pair in node_pairs {
         // add nodes, and edge for each pair, hopefully the value for each key can be kutable
-        println!("({}, {}) -- ({}, {})", node_pair[0].0, node_pair[0].1, node_pair[1].0, node_pair[1].1);
         //check if the nodes exist already, then connect them once they do
         if (!result.contains_key(&node_pair[0])) {
             //insert
@@ -40,7 +43,6 @@ fn create_graph<'a>(node_pairs: &Vec<Vec<(&'a str, bool)>>) -> HashMap<(&'a str,
             //append adjacency list
             if let Some(x) = result.get_mut(&node_pair[0]) {
                 x.push(node_pair[1]);
-                println!("result[({}, {})] = {:?}", node_pair[0].0, node_pair[0].1, x);
             }
         }
 
@@ -52,7 +54,6 @@ fn create_graph<'a>(node_pairs: &Vec<Vec<(&'a str, bool)>>) -> HashMap<(&'a str,
             //append adjacency list
             if let Some(x) = result.get_mut(&node_pair[1]) {
                 x.push(node_pair[0]);
-                println!("result[({}, {})] = {:?}", node_pair[1].0, node_pair[1].1, x);
             }
         }
     }
